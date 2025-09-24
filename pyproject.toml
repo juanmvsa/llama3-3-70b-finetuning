@@ -1,0 +1,258 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["finetune_llama33_70b", "upload_to_hf"]
+
+[project]
+name = "llama3.3-70B-Instruct-finetuning"
+version = "1.0.0"
+description = "Llama 3.3 70B finetuning for workplace violence prevention chatbot"
+authors = [
+    {name = "Juan Vásquez", email = "juanmvs@pm.com"}
+]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10,<3.13"
+keywords = ["llama", "finetuning", "chatbot", "workplace-safety", "spanish"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    # Core ML libraries optimized for H100 and RHEL 8.8
+    "torch==2.4.0",
+    "torchvision==0.19.0",
+    "torchaudio==2.4.0",
+
+    # HuggingFace ecosystem for finetuning and model management
+    "transformers>=4.45.0",
+    "accelerate>=0.34.0",
+    "datasets>=2.21.0",
+    "huggingface-hub>=0.24.0",
+    "tokenizers>=0.20.0",
+    "safetensors>=0.4.0",
+
+    # PEFT and fine-tuning libraries
+    "peft>=0.12.0",
+    "trl>=0.11.0",
+
+    # Quantization and memory optimization for H100
+    "bitsandbytes>=0.43.0",
+
+    # Monitoring and experiment tracking
+    "wandb>=0.18.0",
+    "tensorboard>=2.17.0",
+    "mlflow>=2.16.0",
+
+    # Model evaluation and benchmarking
+    "evaluate==0.4.2",
+
+    # Data processing and manipulation
+    "numpy==1.26.4",
+    "pandas==2.2.2",
+    "scipy==1.13.1",
+    "pyarrow==17.0.0",
+    "dill==0.3.8",
+    "multiprocess==0.70.16",
+    "jsonlines==4.0.0",
+    "openpyxl==3.1.5",
+
+    # Text processing and NLP utilities
+    "sentencepiece==0.2.0",
+    "protobuf==4.25.4",
+    "regex==2024.7.24",
+    "ftfy==6.2.0",
+    "unidecode==1.3.8",
+
+    # Network, async, and HTTP handling
+    "aiohttp==3.10.5",
+    "requests==2.32.3",
+    "urllib3==2.2.2",
+
+    # System utilities and environment management
+    "packaging==24.1",
+    "psutil==5.9.8",
+    "gitpython==3.1.43",
+    "python-dotenv==1.0.1",
+    "tqdm==4.66.5",
+    "rich==13.8.0",
+
+    # Spanish language support and evaluation
+    "spacy==3.7.6",
+
+
+]
+
+[project.optional-dependencies]
+dev = [
+    "black==24.8.0",
+    "flake8==7.1.1",
+]
+
+upload = [
+    "huggingface_hub>=0.24.0",
+]
+
+
+[project.urls]
+Homepage = "https://github.com/juan/neurona-chatbot"
+Repository = "https://github.com/juan/neurona-chatbot.git"
+Issues = "https://github.com/juan/neurona-chatbot/issues"
+
+[tool.uv]
+# uv-specific configuration
+
+[dependency-groups]
+dev = [
+    "black>=24.0.0",
+    "flake8>=7.0.0",
+]
+
+# Configure PyTorch CUDA index
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
+
+[tool.uv.sources]
+# Specify CUDA-enabled PyTorch versions
+torch = { index = "pytorch" }
+torchvision = { index = "pytorch" }
+torchaudio = { index = "pytorch" }
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503", "E501"]
+exclude = [".git", "__pycache__", "build", "dist", ".eggs"]
+
+
+# Environment-specific configurations
+[tool.neurona-chatbot]
+[tool.neurona-chatbot.finetuning]
+# Default finetuning configuration
+model_name = "meta-llama/Llama-3.3-70B-Instruct"
+fallback_model = "meta-llama/Llama-3.1-70B-Instruct"
+data_path = "ft_data.json"
+output_dir = "./results"
+cache_dir = "./model_cache"
+
+# Training hyperparameters optimized for H100
+num_train_epochs = 3
+per_device_train_batch_size = 2
+per_device_eval_batch_size = 2
+gradient_accumulation_steps = 16
+learning_rate = 1e-4
+warmup_ratio = 0.1
+max_seq_length = 2048
+
+# LoRA configuration
+lora_r = 128
+lora_alpha = 32
+lora_dropout = 0.05
+target_modules = [
+    "q_proj", "k_proj", "v_proj", "o_proj",
+    "gate_proj", "up_proj", "down_proj",
+    "embed_tokens", "lm_head"
+]
+
+# Quantization settings
+load_in_4bit = true
+bnb_4bit_use_double_quant = true
+bnb_4bit_quant_type = "nf4"
+bnb_4bit_compute_dtype = "bfloat16"
+
+# H100 optimizations
+use_sdpa_attention = true
+bf16 = true
+tf32 = true
+dataloader_num_workers = 8
+gradient_checkpointing = true
+
+
+[tool.neurona-chatbot.upload]
+# HuggingFace upload configuration
+repository_id = "juan/llama-33-70b-workplace-safety-es"
+private = false
+commit_message = "Add Llama 3.3 70B finetuned for workplace violence prevention (Spanish)"
+commit_description = """
+Fine-tuned Llama 3.3 70B model for workplace violence prevention and sexual harassment guidance in Spanish.
+
+Training details:
+- Base model: meta-llama/Llama-3.3-70B-Instruct
+- Technique: QLoRA (4-bit quantization + LoRA)
+- Language: Spanish
+- Domain: Workplace safety and violence prevention
+- Hardware: NVIDIA H100 PCIe 80GB
+- Precision: bfloat16 with 4-bit quantization
+
+Model capabilities:
+- Empathetic response generation
+- Workplace safety guidance
+- Resource recommendations
+- Multi-turn conversations
+- Professional and warm tone
+"""
+
+# Model card metadata
+model_card = true
+license = "llama3.3"
+language = ["es"]
+library_name = "transformers"
+pipeline_tag = "text-generation"
+tags = [
+    "llama",
+    "llama-3.3",
+    "conversational",
+    "spanish",
+    "workplace-safety",
+    "violence-prevention",
+    "qlora",
+    "peft"
+]
+
+[tool.neurona-chatbot.wandb]
+# Weights & Biases configuration
+project = "llama-33-70b-conversational-agent"
+entity = "juan"
+name = "conversational-qlora-finetuning"
+notes = "Llama 3.3 70B finetuning for workplace violence prevention chatbot"
+tags = ["llama-3.3", "qlora", "spanish", "h100", "workplace-safety"]
+
+[tool.neurona-chatbot.environment]
+# Environment variables for H100 optimization
+CUDA_VISIBLE_DEVICES = "0"
+TOKENIZERS_PARALLELISM = "false"
+PYTORCH_CUDA_ALLOC_CONF = "max_split_size_mb:512,roundup_power2_divisions:16"
+TORCH_CUDNN_V8_API_ENABLED = "1"
+CUBLAS_WORKSPACE_CONFIG = ":4096:8"
+NCCL_P2P_DISABLE = "0"
+NCCL_IB_DISABLE = "1"
+PYTORCH_ENABLE_SDPA = "1"
+TORCH_CUDA_ARCH_LIST = "9.0"
