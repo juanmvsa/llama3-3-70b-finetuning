@@ -155,10 +155,10 @@ uv run python finetune_llama33_70b.py \
 
 ### Local Inference
 ```bash
-# Interactive chat with your trained model
-uv run python finetune_llama33_70b.py --inference --interactive --adapter_path ./results --token hf_your_token_here
+# Interactive chat with your trained model (requires inference.py - not included in this repository)
+# You'll need to implement your own inference script or use the training script's inference mode
 
-# Single prompt inference
+# Single prompt inference using the training script
 uv run python finetune_llama33_70b.py --inference --adapter_path ./results --prompt "Your question here" --token hf_your_token_here
 
 # Compare with base model
@@ -176,7 +176,7 @@ uv run python upload_to_hf.py --model_dir ./results --repo_name "username/your-m
 ```
 llama3-3-70b-finetuning/
 ├── 🐍 Core Scripts
-│   ├── finetune_llama33_70b.py           # H100-optimized training and inference pipeline
+│   ├── finetune_llama33_70b.py           # H100-optimized training pipeline
 │   └── upload_to_hf.py                   # HuggingFace Hub deployment utility
 ├── ⚙️ Configuration
 │   ├── pyproject.toml                    # Complete dependency management and project config
@@ -187,6 +187,10 @@ llama3-3-70b-finetuning/
 │   └── special_tokens_map.json          # Special tokens mapping
 └── 📚 Documentation
     └── README.md                         # Project overview and usage guide
+
+Note: Some files (training data, inference scripts, and documentation) are in .gitignore
+and not included in the repository. You'll need to create your own training data
+and implement inference scripts as needed.
 ```
 
 ## 🤖 Features
@@ -282,23 +286,27 @@ This framework can be used to create specialized conversational agents for vario
 ]
 ```
 
-### Example Model Card
-For a complete example of a model trained with this framework, see:
-- **[Neurona Model Card](HUGGINGFACE_MODEL_CARD.md)** - Spanish workplace violence prevention chatbot
+### Example Implementation
+This framework was successfully used to create specialized conversational agents for:
+- **Spanish workplace violence prevention** - Achieved 97% memory efficiency on H100
+- **Multi-dimensional conversation quality evaluation** - 7-dimensional assessment framework
+- **Professional empathy balance** - 0.73 weighted composite score
+
+*Note: Specific implementation files and model cards are not included in this repository
+but can serve as a reference for your own projects.*
 
 
 ## 🔧 Troubleshooting
 
 ### Common Issues
 
-**"CUDA out of memory" during training or inference:**
+**"CUDA out of memory" during training:**
 ```bash
 # Use 4-bit quantization and reduce batch size
 export CUDA_VISIBLE_DEVICES=0
-uv run python finetune_llama33_70b.py --per_device_train_batch_size 1 --gradient_accumulation_steps 64
+uv run python finetune_llama33_70b.py --per_device_train_batch_size 1 --gradient_accumulation_steps 64 --data_path your_data.json
 
-# For inference with your trained model
-uv run python finetune_llama33_70b.py --inference --adapter_path ./results --load_in_4bit --token your_token
+# For inference, implement your own inference script with 4-bit quantization enabled
 ```
 
 **"Model not found" error:**
@@ -355,7 +363,8 @@ device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 - Check [troubleshooting section](#-troubleshooting) first
 - Verify hardware requirements match your system
 - Ensure proper environment setup with `uv sync`
-- Review the example model card for implementation guidance
+- Create your own training data in the expected JSON format
+- Implement inference scripts as needed for your use case
 
 ### Getting Started
 - Start with the [quick start](#-quick-start) section
