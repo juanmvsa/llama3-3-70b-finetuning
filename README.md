@@ -2,6 +2,8 @@
 
 A comprehensive framework for fine-tuning Llama 3.3 70B Instruct for custom conversational agents using QLoRA on H100 hardware. This repository provides production-ready tools for training, inference, and deployment of specialized instruction-following models.
 
+[Here](https://huggingface.co/juanmvs/neurona) is an example of a finetuned model using this codebase.
+
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.4.0-red)](https://pytorch.org/)
 [![Transformers](https://img.shields.io/badge/🤗%20Transformers-4.45.0+-yellow)](https://huggingface.co/transformers/)
 [![PEFT](https://img.shields.io/badge/PEFT-LoRA-blue)](https://github.com/huggingface/peft)
